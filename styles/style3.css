@@ -1,0 +1,48 @@
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f7f7;
+    color: #333;
+    margin: 20px;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    background-color: #ffffff;
+    padding: 25px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+h1, h2, h3 {
+    color: #00539C;
+    margin-bottom: 12px;
+    border-bottom: 2px solid #00539C;
+    padding-bottom: 5px;
+}
+p, li {
+    line-height: 1.6;
+    font-size: 1rem;
+}
+a {
+    color: #007ACC;
+}
+a:hover {
+    text-decoration: underline;
+}
+ul.skills {
+    list-style: disc outside;
+    margin: 0 0 10px 20px;
+}
+ul.skills li {
+    margin-bottom: 2px;
+    line-height: 1.1;
+}
+/* Правило для всех изображений */
+img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+}

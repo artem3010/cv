@@ -19,6 +19,8 @@ Experienced **Senior GO Backend Developer** with expertise in **Golang, cloud in
 Proven track record in optimizing **high-load microservices**, improving **security models**, and **reducing Time to
 Market (TTM)** by up to **90%**. Passionate about building scalable platforms and enhancing system reliability.
 
+______________________________
+
 ## Skills
 
 - **IT** - 7+ years
@@ -39,7 +41,7 @@ Market (TTM)** by up to **90%**. Passionate about building scalable platforms an
 - **Kafka / NATS / RabbitMQ**
 - **Agile / Scrum / Kanban**
 
----
+______________________________
 
 ## Experience
 
