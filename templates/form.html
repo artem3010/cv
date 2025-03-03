@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Resume Generator</title>
+    <style>
+        /* Base reset and layout */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1f1f1f; /* Dark background */
+            color: #e2e2e2; /* Light text */
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Optional header/branding */
+        .header {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .header .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .tagline {
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        /* Main container */
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .instructions {
+            font-size: 0.95rem;
+            color: #bfbfbf;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Объединённая форма */
+        form.main-form {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Поисковая строка: input + CTA buttons */
+        .search-bar {
+            display: flex;
+            background-color: #ccc;
+            border-radius: 25px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .search-bar input[type="text"] {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 15px 20px;
+            font-size: 1rem;
+            color: #333;
+            background-color: #fff;
+        }
+
+        .search-bar button {
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #333;
+            background-color: #ccc;
+            padding: 15px 20px;
+            transition: background-color 0.2s;
+        }
+
+        .search-bar button:hover {
+            background-color: #bbb;
+        }
+
+        /* Контейнер для блока Controls: выбор стиля и масштаб */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .style-container,
+        .scale-container {
+            width: 380px; /* Фиксированная одинаковая ширина */
+            background-color: #2f2f2f;
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .controls h2 {
+            font-size: 1.2rem;
+            margin: 0;
+            color: #cccccc;
+        }
+
+        .style-container label,
+        .scale-container label {
+            font-weight: 600;
+        }
+
+        .style-container select,
+        .scale-container input[type="range"],
+        .scale-container input[type="number"] {
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: #444;
+            color: #e2e2e2;
+            padding: 0.4rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .scale-container input[type="range"] {
+            width: 100%;
+        }
+
+        footer {
+            background-color: #2f2f2f;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        footer a {
+            color: #68b5f7;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+
+        /* Notifications container and style */
+        #notifications {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .notification {
+            background: #333;
+            color: #fff;
+            padding: 20px 30px; /* увеличенные отступы */
+            margin-top: 10px;
+            border-radius: 8px; /* большее скругление */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            opacity: 0.95;
+            font-size: 1.2rem; /* увеличенный размер шрифта */
+        }
+
+        .notification.error {
+            background: #cc0000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <!-- ... -->
+    <div class="tagline">Generate a professional resume from your GitHub README</div>
+</div>
+
+<div class="container">
+    <h1>GitHub Resume Generator</h1>
+    <div class="instructions">
+        Enter your GitHub username in the field below, then click either
+        <strong>Generate HTML</strong> or <strong>Generate PDF</strong> to download your resume.
+    </div>
+
+    <!-- Main form (no direct POST, we'll handle via JS) -->
+    <form class="main-form" id="mainForm">
+        <!-- Search bar -->
+        <div class="search-bar">
+            <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="GitHub username"
+                    required
+            >
+            <button type="submit" name="action" value="html">Generate HTML</button>
+            <button type="submit" name="action" value="pdf">Generate PDF</button>
+        </div>
+
+        <!-- Controls: style & scale -->
+        <div class="controls">
+            <div class="style-container">
+                <h2>Style</h2>
+                <select id="style" name="style">
+                    {{range .Styles}}
+                    <option value="{{.}}" {{if eq .
+                    "Default"}}selected{{end}}>{{.}}</option>
+                    {{end}}
+                </select>
+            </div>
+
+            <div class="scale-container">
+                <h2>PDF Document Scale</h2>
+                <input
+                        type="range"
+                        id="scaleRange"
+                        name="scaleRange"
+                        min="50"
+                        max="200"
+                        step="1"
+                        value="85"
+                        oninput="scaleInput.value = this.value"
+                >
+                <input
+                        type="number"
+                        id="scaleInput"
+                        name="scale"
+                        min="50"
+                        max="200"
+                        step="1"
+                        value="85"
+                        oninput="scaleRange.value = this.value"
+                >
+            </div>
+        </div>
+    </form>
+</div>
+
+<footer>
+    <p>
+        <a href="https://github.com/artem3010/cv" target="_blank">GitHub</a> |
+        <a href="https://tronscan.org/#/address/TJ4twJLg3kVvdBtzXPoQspNKewamytVfxu" target="_blank">Donate TRC20</a> |
+        <a href="https://www.linkedin.com/in/aealeks3010/" target="_blank">LinkedIn</a>
+    </p>
+</footer>
+
+<!-- Notifications container -->
+<div id="notifications"></div>
+
+<script>
+    // Show notification in bottom-right corner
+    function showNotification(msg, isError = false) {
+        const container = document.getElementById('notifications');
+        const div = document.createElement('div');
+        div.className = 'notification' + (isError ? ' error' : '');
+        div.textContent = msg;
+        container.appendChild(div);
+        setTimeout(() => {
+            container.removeChild(div);
+        }, 5000);
+    }
+
+    // Handle form submission via AJAX
+    document.getElementById('mainForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const submitter = e.submitter; // кнопка, вызвавшая отправку формы
+        const action = submitter ? submitter.value : ""; // ожидаем, что кнопка имеет value="html" или "pdf"
+
+        if (!action) {
+            showNotification("Error: No action specified.", true);
+            return;
+        }
+
+        showNotification(`File downloading`);
+
+        const formData = new FormData(form);
+        // Если по каким-то причинам значение не попало в formData, добавляем его вручную:
+        if (!formData.get('action')) {
+            formData.append('action', action);
+        }
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) {
+                const errorText = await response.text();
+                showNotification(errorText, true);
+                return;
+            }
+            const disposition = response.headers.get('Content-Disposition');
+            let filename = 'resume.' + (action === 'pdf' ? 'pdf' : 'html');
+            if (disposition) {
+                const match = disposition.match(/filename="?([^"]+)"?/);
+                if (match && match[1]) {
+                    filename = match[1];
+                }
+            }
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            showNotification('Error: ' + err.message, true);
+        }
+    });
+</script>
+
+</body>
+</html>

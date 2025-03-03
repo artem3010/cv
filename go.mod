@@ -1,8 +1,6 @@
-module github.com/yourusername/cv
+module github.com/artem3010/cv
 
 go 1.23
-
-toolchain go1.23.6
 
 require (
 	github.com/chromedp/cdproto v0.0.0-20250224005500-01948a15fe7c

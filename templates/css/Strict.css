@@ -1,0 +1,28 @@
+/* strict.css - строгий стиль резюме */
+body {
+    font-family: "Times New Roman", Times, serif;
+    background-color: #ffffff;
+    color: #000000;
+    margin: 40px;
+    line-height: 1.8;
+}
+h1, h2, h3 {
+    color: #000000;
+    border-bottom: 1px solid #000000;
+    padding-bottom: 5px;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+li {
+    margin-bottom: 5px;
+}
+a {
+    color: #000000;
+    text-decoration: none;
+    border-bottom: 1px dotted #000000;
+}
+a:hover {
+    text-decoration: underline;
+}

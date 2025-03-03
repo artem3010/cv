@@ -1,28 +1,41 @@
-# Этап сборки: используем официальный образ golang для сборки приложения.
-FROM golang:1.23 AS builder
+# -------- STAGE 1: BUILD --------
+FROM golang:1.23-alpine AS builder
+
+# Создаем рабочую директорию
 WORKDIR /app
 
-# Копируем файлы модулей и скачиваем зависимости.
+# Копируем go.mod и go.sum отдельно для кеширования зависимостей
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Копируем исходный код и собираем бинарник.
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -o cv-generator main.go
+# Копируем весь проект
+COPY . ./
 
-# Финальный образ: Alpine с установленным Chromium.
-FROM alpine:latest
-# Обновляем репозитории и устанавливаем Chromium и необходимые библиотеки.
-RUN apk update && apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
+# Собираем бинарник из cmd/main.go
+RUN go build -o server ./cmd/main.go
 
-# Указываем путь к Chromium для chromedp.
-ENV CHROME_BIN=/usr/bin/chromium-browser
+# -------- STAGE 2: RUN --------
+FROM debian:bullseye-slim
 
+# Устанавливаем Chromium для Chromedp
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создаем рабочую директорию
 WORKDIR /app
-# Копируем бинарный файл из билдера.
-COPY --from=builder /app/ .
 
-# Открываем порт (по умолчанию наш сервер слушает 8080)
+# Копируем скомпилированный бинарник
+COPY --from=builder /app/server /app/server
+
+# Копируем шаблоны (templates), если нужны в рантайме
+COPY --from=builder /app/templates /app/templates
+
+# При необходимости скопируйте и другие нужные файлы (static, etc.)
+
+# Открываем порт (пример: 8080)
 EXPOSE 8080
 
-ENTRYPOINT ["./cv-generator"]
+# Точка входа
+ENTRYPOINT ["/app/server"]
