@@ -8,14 +8,13 @@ import (
 	gmhtml "github.com/yuin/goldmark/renderer/html"
 )
 
-// ConvertMarkdownToHTMLFragment конвертирует Markdown в HTML‑фрагмент без полной обёртки.
 func ConvertMarkdownToHTMLFragment(mdContent string) (string, error) {
 	md := goldmark.New(
 		goldmark.WithExtensions(
 			extension.GFM,
 		),
 		goldmark.WithRendererOptions(
-			gmhtml.WithUnsafe(), // разрешает вывод сырого HTML
+			gmhtml.WithUnsafe(),
 		),
 	)
 	var buf bytes.Buffer

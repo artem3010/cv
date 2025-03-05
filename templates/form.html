@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>GitHub Resume Generator</title>
     <style>
-        /* Base reset and layout */
         * {
             box-sizing: border-box;
         }
@@ -12,15 +11,14 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #1f1f1f; /* Dark background */
-            color: #e2e2e2; /* Light text */
+            background-color: #1f1f1f;
+            color: #e2e2e2;
             font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* Optional header/branding */
         .header {
             text-align: center;
             padding: 1rem;
@@ -37,7 +35,6 @@
             color: #cccccc;
         }
 
-        /* Main container */
         .container {
             flex: 1;
             display: flex;
@@ -65,13 +62,11 @@
             margin-right: auto;
         }
 
-        /* Объединённая форма */
         form.main-form {
             width: 800px;
             margin: 0 auto;
         }
 
-        /* Поисковая строка: input + CTA buttons */
         .search-bar {
             display: flex;
             background-color: #ccc;
@@ -106,7 +101,6 @@
             background-color: #bbb;
         }
 
-        /* Контейнер для блока Controls: выбор стиля и масштаб */
         .controls {
             display: flex;
             justify-content: space-between;
@@ -117,7 +111,7 @@
 
         .style-container,
         .scale-container {
-            width: 380px; /* Фиксированная одинаковая ширина */
+            width: 380px;
             background-color: #2f2f2f;
             padding: 1rem;
             border-radius: 10px;
@@ -172,7 +166,6 @@
         }
 
 
-        /* Notifications container and style */
         #notifications {
             position: fixed;
             bottom: 20px;
@@ -183,12 +176,12 @@
         .notification {
             background: #333;
             color: #fff;
-            padding: 20px 30px; /* увеличенные отступы */
+            padding: 20px 30px;
             margin-top: 10px;
-            border-radius: 8px; /* большее скругление */
+            border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
             opacity: 0.95;
-            font-size: 1.2rem; /* увеличенный размер шрифта */
+            font-size: 1.2rem;
         }
 
         .notification.error {
@@ -292,8 +285,8 @@
     document.getElementById('mainForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const form = e.target;
-        const submitter = e.submitter; // кнопка, вызвавшая отправку формы
-        const action = submitter ? submitter.value : ""; // ожидаем, что кнопка имеет value="html" или "pdf"
+        const submitter = e.submitter;
+        const action = submitter ? submitter.value : "";
 
         if (!action) {
             showNotification("Error: No action specified.", true);
@@ -303,7 +296,6 @@
         showNotification(`File downloading`);
 
         const formData = new FormData(form);
-        // Если по каким-то причинам значение не попало в formData, добавляем его вручную:
         if (!formData.get('action')) {
             formData.append('action', action);
         }

@@ -2,12 +2,13 @@ package handler
 
 import (
 	"fmt"
-	"github.com/artem3010/cv/pkg/converter"
-	"github.com/artem3010/cv/pkg/style"
 	"io"
 	"net/http"
 	"strconv"
 	"text/template"
+
+	"github.com/artem3010/cv/pkg/converter"
+	"github.com/artem3010/cv/pkg/style"
 )
 
 const FormTemplatePath = "templates/form.html"
@@ -17,12 +18,12 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		tmpl, err := template.ParseFiles(FormTemplatePath)
 		if err != nil {
-			http.Error(w, "Ошибка загрузки шаблона формы", http.StatusInternalServerError)
+			http.Error(w, "Error during form template loading", http.StatusInternalServerError)
 			return
 		}
 		styles, err := style.GetAvailableStyles()
 		if err != nil {
-			http.Error(w, "Ошибка загрузки стилей: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Error during styles loading: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		data := struct {
@@ -37,17 +38,16 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		branch := r.FormValue("branch")
 		styleName := r.FormValue("style")
 		action := r.FormValue("action")
-		scaleStr := r.FormValue("scale") // <-- получаем строку масштаба
+		scaleStr := r.FormValue("scale")
 
 		if username == "" {
-			http.Error(w, "Не указан GitHub ник", http.StatusBadRequest)
+			http.Error(w, "Here's no username", http.StatusBadRequest)
 			return
 		}
 		if branch == "" {
 			branch = "main"
 		}
 
-		// Парсим масштаб (проценты) в float64
 		scaleFloat, err := strconv.ParseFloat(scaleStr, 64)
 		if err != nil {
 			scaleFloat = 100 // если не получилось считать, ставим 100%
@@ -55,7 +55,6 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 		mdContent, err := fetchReadme(username, branch)
 		if err != nil {
-			// Если не получилось, пробуем другую ветку
 			if branch == "main" {
 				branch = "master"
 			} else {
@@ -63,33 +62,30 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			mdContent, err = fetchReadme(username, branch)
 			if err != nil {
-				w.WriteHeader(http.StatusNotFound) // или 400
-				w.Write([]byte("Не удалось получить README.md для пользователя " + username))
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("Couldn't get README.md for user " + username))
 				return
 			}
 		}
 
-		// Конвертируем Markdown в HTML-фрагмент
 		fragment, err := converter.ConvertMarkdownToHTMLFragment(mdContent)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError) // или 400
-			w.Write([]byte("Не удалось получить README.md для пользователя " + username))
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Couldn't get README.md for user " + username))
 			return
 		}
 
-		// Получаем Styler
 		styler, err := style.GetStyler(styleName)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError) // или 400
-			w.Write([]byte("Ошибка при загрузке стиля: " + err.Error()))
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Couldn't get a style: " + err.Error()))
 			return
 		}
 
-		// Применяем стиль к HTML-фрагменту
 		htmlContent, err := styler.Apply(fragment)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Ошибка при применении стиля: " + err.Error()))
+			w.Write([]byte("Couldn't get a style: " + err.Error()))
 			return
 		}
 
@@ -100,7 +96,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 			// Передаём масштаб в PDF (делим на 100, т.к. WithScale(1.0) = 100%)
 			pdfBytes, err := converter.ConvertHTMLToPDF(htmlContent, scaleFloat/100.0)
 			if err != nil {
-				http.Error(w, "Ошибка при конвертации в PDF: "+err.Error(), http.StatusInternalServerError)
+				http.Error(w, "Couldn't convert to PDF: "+err.Error(), http.StatusInternalServerError)
 				return
 			}
 			w.Header().Set("Content-Type", "application/pdf")
@@ -108,16 +104,15 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 			w.Write(pdfBytes)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Неверное действие"))
+			w.Write([]byte("Wrong action"))
 		}
 
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Метод не поддерживается"))
+		w.Write([]byte("Method is not implemented"))
 	}
 }
 
-// fetchReadme получает содержимое файла README.md из репозитория GitHub по указанному username и branch.
 func fetchReadme(username, branch string) (string, error) {
 	url := fmt.Sprintf("https://raw.githubusercontent.com/%s/%s/%s/README.md", username, username, branch)
 	resp, err := http.Get(url)

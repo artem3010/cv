@@ -9,8 +9,6 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// ConvertHTMLToPDF преобразует HTML в PDF с использованием chromedp и cdproto/page.
-// scale - масштаб (1.0 = 100%, 0.8 = 80%, 1.2 = 120%, и т.д.)
 func ConvertHTMLToPDF(htmlContent string, scale float64) ([]byte, error) {
 	ctx, cancel := chromedp.NewContext(context.Background())
 	defer cancel()
@@ -29,7 +27,7 @@ func ConvertHTMLToPDF(htmlContent string, scale float64) ([]byte, error) {
 				WithPrintBackground(true).
 				WithDisplayHeaderFooter(true).
 				WithMarginTop(0.4).
-				WithMarginBottom(0.6). // Увеличиваем нижний отступ
+				WithMarginBottom(0.6).
 				WithFooterTemplate(`
 												  <div style="font-size:10px !important;
 															  border-top:1px solid #888;
